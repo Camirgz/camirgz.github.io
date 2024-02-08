@@ -80,7 +80,7 @@ ul li::before{
 }
 
 ul li.checked{
-    color:hsl(323, 54%, 69%);
+    color:hsl(323, 12%, 74%);
     text-decoration: line-through;
 }
 
