@@ -9,16 +9,42 @@
 </head>
 <body>
     <div class="container">
-        <div class="todo-app">
-            <div class="h2">To-Do List <img src="Images/heart.png"></div>
-            <div class="row">
-                <input type="text" id="input-box" placeholder="Add your text">
-                <button onclick="addTask()">Add</button>
+        <div class="todo-column">
+            <div class="todo-app">
+                <div class="h2">Morning To-Do List <img src="Images/sun.png"></div>
+                <div class="row">
+                    <input type="text" id="morning-input-box" placeholder="Add your morning task">
+                    <button onclick="addTask('morning')">Add</button>
+                </div>
+                <ul id="morning-list-container">
+                </ul>
             </div>
-            <ul id="list-container">
-            </ul>
+        </div>
+
+        <div class="todo-column">
+            <div class="todo-app">
+                <div class="h2">Afternoon To-Do List <img src="Images/afternoon-tea.png"></div>
+                <div class="row">
+                    <input type="text" id="afternoon-input-box" placeholder="Add your afternoon task">
+                    <button onclick="addTask('afternoon')">Add</button>
+                </div>
+                <ul id="afternoon-list-container">
+                </ul>
+            </div>
+        </div>
+
+        <div class="todo-column">
+            <div class="todo-app">
+                <div class="h2">Night To-Do List <img src="Images/moon.png"></div>
+                <div class="row">
+                    <input type="text" id="night-input-box" placeholder="Add your night task">
+                    <button onclick="addTask('night')">Add</button>
+                </div>
+                <ul id="night-list-container">
+                </ul>
+            </div>
         </div>
     </div> 
-<script src="script.js"> </script>
+    <script src="script.js"> </script>
 </body>
 </html>

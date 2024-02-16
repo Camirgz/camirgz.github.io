@@ -104,3 +104,12 @@ ul li span:hover{
     background-color: #edeef0;
 
 }
+
+.container {
+    display: flex;
+}
+
+.todo-column {
+    flex: 1;
+    margin: 0 10px;
+}
