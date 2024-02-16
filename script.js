@@ -2,16 +2,21 @@ const inputBox = document.getElementById("input-box");
 const listContainer = document.getElementById("list-container");
 
 function addTask() {
-    if (inputBox.value === "") {
+    let taskText = inputBox.value.trim(); // Eliminar espacios en blanco al principio y al final
+
+    if (taskText === "") {
         alert("You must write something!");
-    } else {
-        let li = document.createElement("li");
-        li.innerHTML = inputBox.value;
-        listContainer.appendChild(li);
-        let span = document.createElement("span");
-        span.innerHTML = "\u00d7";
-        li.appendChild(span);
+        return; // Salir de la función si la entrada está vacía
     }
+
+    let li = document.createElement("li");
+    li.textContent = taskText; // Usar textContent para evitar problemas de seguridad con HTML
+    listContainer.appendChild(li);
+
+    let span = document.createElement("span");
+    span.textContent = "\u00d7";
+    li.appendChild(span);
+
     inputBox.value = "";
     saveData();
 }
