@@ -1,50 +1,1025 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-    <link rel="icon" href="Images/heart.png">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>To-Do List App</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Camila Rodríguez — Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..500;9..600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --blue:#5B8DEF;--blue-l:#8AB4FF;--blue-d:#3A6ED4;
+  --purple:#9B6DFF;--purple-l:#C4A0FF;--purple-d:#6B3FD4;
+  --pink:#E094CF;
+  --white:#F8F5FF;--off:#EDE8FF;
+  --bg:#07041A;--bg2:#0E0B26;--bg3:#130F30;
+  --txt:#EDE8FF;--muted:#9987CC;
+  --glass:rgba(255,255,255,0.04);--gb:rgba(155,109,255,0.18);
+  --fd:'Cormorant Garamond',serif;
+  --fb:'DM Sans',sans-serif;
+  --fm:'Space Mono',monospace;
+  --icon-default:var(--purple-l);--icon-hover:var(--blue-l);
+}
+body.light{
+  --bg:#f5f3ff;--bg2:#ede8ff;--bg3:#e0d9ff;
+  --txt:#1a0e40;--muted:#6e5a9f;
+  --white:#1a0e40;--off:#2d1f5e;
+  --glass:rgba(91,141,239,.06);--gb:rgba(155,109,255,.15);
+  --icon-default:var(--purple-d);--icon-hover:var(--blue-d);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--txt);
+  font-family:var(--fb);overflow-x:hidden;
+  cursor:none;transition:background .3s,color .3s;
+}
+/* ─── cursor ─── */
+#cur{position:fixed;width:10px;height:10px;border-radius:50%;
+  background:var(--purple-l);pointer-events:none;z-index:9999;
+  transform:translate(-50%,-50%);transition:.15s;mix-blend-mode:screen}
+#cur-r{position:fixed;width:32px;height:32px;border-radius:50%;
+  border:1.5px solid rgba(155,109,255,.45);pointer-events:none;z-index:9998;
+  transform:translate(-50%,-50%);transition:.1s ease-out}
+/* ─── scrollbar ─── */
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-thumb{background:linear-gradient(var(--purple),var(--blue));border-radius:3px}
+/* ─── noise ─── */
+body::after{content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:0;opacity:.5}
+body.light::after{opacity:.2}
+/* ─── CANVAS BG ─── */
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none}
+body.light #stars{opacity:.3}
+/* ─── NAV ─── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.2rem 5%;backdrop-filter:blur(16px);
+  border-bottom:1px solid rgba(155,109,255,.08);
+  background:rgba(7,4,26,.7);transition:.3s}
+body.light nav{background:rgba(245,243,255,.88);border-bottom-color:rgba(155,109,255,.15)}
+.nav-logo{font-family:var(--fd);font-size:1.3rem;font-weight:600;
+  background:linear-gradient(135deg,var(--blue-l),var(--purple-l));
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:.02em}
+.nav-links{display:flex;gap:2rem;list-style:none}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:.85rem;
+  letter-spacing:.06em;text-transform:uppercase;font-weight:500;
+  transition:.2s;position:relative}
+.nav-links a::after{content:'';position:absolute;bottom:-3px;left:0;
+  width:0;height:1px;background:linear-gradient(90deg,var(--blue),var(--purple));transition:.3s}
+.nav-links a:hover{color:var(--white)}
+.nav-links a:hover::after{width:100%}
+.nav-controls{display:flex;align-items:center;gap:.5rem}
+.ctrl-btn{
+  background:transparent;border:1px solid rgba(155,109,255,.25);
+  color:var(--muted);border-radius:8px;padding:.28rem .6rem;
+  font-size:.72rem;cursor:pointer;transition:.2s;
+  font-family:var(--fm);letter-spacing:.04em;line-height:1;
+}
+.ctrl-btn:hover{background:rgba(155,109,255,.1);color:var(--purple-l);border-color:rgba(155,109,255,.4)}
+.burger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px}
+.burger span{display:block;width:22px;height:1.5px;background:var(--purple-l);transition:.3s}
+/* ─── HERO ─── */
+.hero{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  position:relative;padding:0 5%;text-align:center;flex-direction:column;overflow:hidden;
+}
+.hero-glow{
+  position:absolute;inset:0;pointer-events:none;z-index:1;
+  background:
+    radial-gradient(ellipse 60% 40% at 30% 60%,rgba(91,141,239,.12) 0%,transparent 70%),
+    radial-gradient(ellipse 50% 35% at 70% 35%,rgba(155,109,255,.14) 0%,transparent 65%),
+    radial-gradient(ellipse 40% 50% at 50% 80%,rgba(224,148,207,.07) 0%,transparent 70%);
+}
+.hero-inner{position:relative;z-index:2;max-width:800px}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:.5rem;
+  background:rgba(155,109,255,.1);border:1px solid rgba(155,109,255,.25);
+  padding:.35rem 1rem;border-radius:100px;font-size:.78rem;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--purple-l);
+  margin-bottom:1.8rem;font-weight:500;animation:fadeUp .8s ease both;
+}
+.hero-badge span.dot{width:6px;height:6px;border-radius:50%;background:var(--purple-l);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+.hero h1{
+  font-family:var(--fd);font-size:clamp(3.2rem,8vw,6.5rem);
+  font-weight:600;line-height:1.05;letter-spacing:-.01em;animation:fadeUp .8s .15s ease both;
+}
+.hero h1 .name-line{display:block}
+.hero h1 .grad{
+  background:linear-gradient(135deg,var(--blue-l) 0%,var(--purple-l) 50%,var(--pink) 100%);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;font-style:italic;
+}
+.hero-sub{
+  margin-top:1.2rem;font-size:clamp(.95rem,2vw,1.15rem);color:var(--muted);
+  line-height:1.7;max-width:520px;margin-left:auto;margin-right:auto;
+  animation:fadeUp .8s .3s ease both;
+}
+.hero-type{
+  margin-top:.8rem;font-family:var(--fm);font-size:.9rem;
+  color:var(--blue-l);min-height:1.4em;animation:fadeUp .8s .45s ease both;
+}
+#typewriter::after{content:'|';animation:blink 1s step-end infinite;color:var(--purple-l)}
+@keyframes blink{50%{opacity:0}}
+.hero-ctas{
+  margin-top:2.2rem;display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;
+  animation:fadeUp .8s .6s ease both;
+}
+.btn{
+  padding:.75rem 1.8rem;border-radius:100px;font-size:.88rem;
+  font-weight:600;text-decoration:none;letter-spacing:.04em;
+  transition:.25s;display:inline-flex;align-items:center;gap:.5rem;cursor:none;
+}
+.btn-primary{
+  background:linear-gradient(135deg,var(--blue),var(--purple));
+  color:#fff;border:none;box-shadow:0 0 25px rgba(155,109,255,.35);
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 40px rgba(155,109,255,.5)}
+.btn-ghost{background:transparent;color:var(--purple-l);border:1px solid rgba(155,109,255,.35);}
+.btn-ghost:hover{background:rgba(155,109,255,.1);transform:translateY(-2px)}
+.hero-scroll{
+  position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);z-index:2;
+  display:flex;flex-direction:column;align-items:center;gap:.5rem;
+  color:var(--muted);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;
+  animation:fadeIn 1s 1.2s both;
+}
+.scroll-line{width:1px;height:40px;background:linear-gradient(var(--purple),transparent);
+  animation:scrollAnim 1.8s ease-in-out infinite}
+@keyframes scrollAnim{0%{transform:scaleY(0);transform-origin:top}
+  50%{transform:scaleY(1);transform-origin:top}
+  51%{transform:scaleY(1);transform-origin:bottom}
+  100%{transform:scaleY(0);transform-origin:bottom}}
+/* ─── SECTIONS ─── */
+section{position:relative;z-index:2;padding:6rem 5%}
+.section-label{
+  font-family:var(--fm);font-size:.72rem;color:var(--purple-l);
+  letter-spacing:.15em;text-transform:uppercase;margin-bottom:.8rem;
+  display:flex;align-items:center;gap:.7rem;
+}
+.section-label::before{content:'';display:block;width:24px;height:1px;
+  background:linear-gradient(90deg,var(--blue),var(--purple))}
+.section-title{font-family:var(--fd);font-size:clamp(2rem,4vw,3rem);font-weight:600;line-height:1.1;}
+.section-title .grad{
+  background:linear-gradient(135deg,var(--blue-l),var(--purple-l));
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+}
+.divider{width:100%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(155,109,255,.2),transparent);margin:0}
+/* ─── ABOUT ─── */
+.about{background:var(--bg)}
+.about-inner{display:grid;grid-template-columns:1fr 1.5fr;gap:5rem;align-items:center;max-width:1100px;margin:0 auto;}
+.about-img-wrap{position:relative}
+.about-img-frame{
+  width:100%;max-width:340px;aspect-ratio:3/4;border-radius:4px 24px 4px 24px;
+  overflow:hidden;position:relative;border:1px solid rgba(155,109,255,.25);
+  box-shadow:0 0 60px rgba(91,141,239,.15);
+}
+.about-img-frame img{width:100%;height:100%;object-fit:cover;object-position:top}
+.about-img-frame::before{content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,transparent 50%,rgba(7,4,26,.8));z-index:1;}
+.about-deco{position:absolute;top:-16px;right:-16px;width:80px;height:80px;
+  border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--purple));
+  opacity:.15;filter:blur(20px);}
+.about-deco2{position:absolute;bottom:-20px;left:-20px;width:120px;height:120px;
+  border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--pink));
+  opacity:.1;filter:blur(30px);}
+.about-corner{position:absolute;top:16px;left:16px;z-index:3;width:32px;height:32px;
+  border-top:2px solid var(--purple-l);border-left:2px solid var(--purple-l);}
+.about-corner2{position:absolute;bottom:16px;right:16px;z-index:3;width:32px;height:32px;
+  border-bottom:2px solid var(--blue-l);border-right:2px solid var(--blue-l);}
+.about-text .section-label{margin-top:0}
+.about-desc{color:var(--muted);line-height:1.85;margin-top:1.2rem;font-size:.97rem}
+.about-desc strong{color:var(--white);font-weight:500}
+.about-chips{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.5rem;}
+.chip{padding:.3rem .9rem;border-radius:100px;font-size:.78rem;
+  border:1px solid rgba(155,109,255,.25);color:var(--purple-l);
+  background:rgba(155,109,255,.07);letter-spacing:.03em;}
+.about-facts{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:2rem;}
+.fact-card{background:var(--glass);border:1px solid var(--gb);border-radius:12px;padding:1rem 1.2rem;}
+.fact-num{font-family:var(--fd);font-size:2rem;font-weight:700;
+  background:linear-gradient(135deg,var(--blue-l),var(--purple-l));
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;line-height:1}
+.fact-label{font-size:.78rem;color:var(--muted);margin-top:.3rem;letter-spacing:.03em}
+/* ─── SKILLS ─── */
+.skills{background:var(--bg2)}
+.skills-inner{max-width:1100px;margin:0 auto}
+.skills-header{margin-bottom:3rem}
+.skills-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem}
+.skill-cat{background:var(--glass);border:1px solid var(--gb);border-radius:16px;padding:1.5rem;transition:.3s;}
+.skill-cat:hover{border-color:rgba(155,109,255,.4);box-shadow:0 0 30px rgba(155,109,255,.1);transform:translateY(-3px)}
+.skill-cat-icon{margin-bottom:.8rem;color:var(--blue-l);}
+body.light .skill-cat-icon{color:var(--blue-d);}
+.skill-cat-icon svg{width:28px;height:28px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}
+.skill-cat-name{font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;color:var(--blue-l);font-weight:600;margin-bottom:1rem}
+.skill-tags{display:flex;flex-wrap:wrap;gap:.4rem}
+.stag{font-family:var(--fm);font-size:.7rem;padding:.25rem .7rem;border-radius:6px;
+  background:rgba(91,141,239,.1);color:var(--blue-l);border:1px solid rgba(91,141,239,.2);transition:.2s;}
+.stag:hover{background:rgba(91,141,239,.2);transform:scale(1.05)}
+.stag.purple{background:rgba(155,109,255,.1);color:var(--purple-l);border-color:rgba(155,109,255,.2)}
+.stag.pink{background:rgba(224,148,207,.1);color:var(--pink);border-color:rgba(224,148,207,.2)}
+/* ─── PROJECTS ─── */
+.projects{background:var(--bg)}
+.projects-inner{max-width:1200px;margin:0 auto}
+.projects-header{margin-bottom:3rem;display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+.projects-filter{display:flex;gap:.5rem;flex-wrap:wrap}
+.filter-btn{padding:.3rem .9rem;border-radius:100px;font-size:.75rem;background:transparent;color:var(--muted);
+  border:1px solid rgba(155,109,255,.2);cursor:none;transition:.2s;font-family:var(--fb);letter-spacing:.04em;}
+.filter-btn.active,.filter-btn:hover{background:rgba(155,109,255,.15);color:var(--purple-l);border-color:rgba(155,109,255,.4);}
+.projects-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1.5rem;}
+.proj-card{background:var(--glass);border:1px solid var(--gb);border-radius:20px;padding:1.8rem;
+  transition:.3s;position:relative;overflow:hidden;display:flex;flex-direction:column;}
+.proj-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--blue),var(--purple),var(--pink));
+  transform:scaleX(0);transform-origin:left;transition:.4s;}
+.proj-card:hover::before{transform:scaleX(1)}
+.proj-card:hover{border-color:rgba(155,109,255,.35);transform:translateY(-5px);
+  box-shadow:0 20px 60px rgba(91,141,239,.1),0 0 40px rgba(155,109,255,.08);}
+.proj-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1rem}
+.proj-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,rgba(91,141,239,.15),rgba(155,109,255,.15));
+  border:1px solid rgba(155,109,255,.2);flex-shrink:0;
+  color:var(--icon-default);transition:color .3s;}
+.proj-card:hover .proj-icon{color:var(--icon-hover)}
+.proj-icon svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}
+.proj-links{display:flex;gap:.5rem}
+.proj-link{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+  border:1px solid rgba(155,109,255,.2);color:var(--muted);text-decoration:none;font-size:.85rem;transition:.2s;background:transparent;}
+.proj-link:hover{color:var(--purple-l);border-color:rgba(155,109,255,.5);background:rgba(155,109,255,.1)}
+.proj-title{font-family:var(--fd);font-size:1.35rem;font-weight:600;line-height:1.2;margin-bottom:.6rem}
+.proj-desc{font-size:.88rem;color:var(--muted);line-height:1.7;flex:1}
+.proj-tags{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:1.2rem}
+.ptag{font-family:var(--fm);font-size:.65rem;padding:.2rem .6rem;border-radius:5px;
+  background:rgba(155,109,255,.1);color:var(--purple-l);border:1px solid rgba(155,109,255,.18);letter-spacing:.03em;}
+.ptag.blue{background:rgba(91,141,239,.1);color:var(--blue-l);border-color:rgba(91,141,239,.18)}
+.proj-meta{display:flex;align-items:center;gap:.8rem;margin-top:1rem;
+  padding-top:1rem;border-top:1px solid rgba(155,109,255,.1)}
+.proj-star{font-size:.75rem;color:var(--muted);display:flex;align-items:center;gap:.3rem}
+.featured-badge{font-size:.65rem;padding:.15rem .55rem;border-radius:100px;
+  background:linear-gradient(135deg,rgba(91,141,239,.2),rgba(155,109,255,.2));
+  color:var(--blue-l);border:1px solid rgba(91,141,239,.25);letter-spacing:.05em;text-transform:uppercase;}
+/* ─── EXPERIENCE ─── */
+.experience{background:var(--bg2)}
+.exp-inner{max-width:900px;margin:0 auto}
+.timeline{margin-top:2.5rem;position:relative}
+.timeline::before{content:'';position:absolute;left:0;top:0;bottom:0;
+  width:1px;background:linear-gradient(var(--purple),var(--blue),transparent);}
+.tl-item{padding-left:2.5rem;position:relative;margin-bottom:2.5rem;}
+.tl-dot{position:absolute;left:-5px;top:4px;width:11px;height:11px;border-radius:50%;
+  background:linear-gradient(135deg,var(--blue),var(--purple));box-shadow:0 0 12px rgba(155,109,255,.5);}
+.tl-date{font-family:var(--fm);font-size:.72rem;color:var(--blue-l);letter-spacing:.08em;margin-bottom:.4rem}
+.tl-title{font-family:var(--fd);font-size:1.2rem;font-weight:600;margin-bottom:.2rem}
+.tl-place{font-size:.83rem;color:var(--purple-l);font-weight:500;margin-bottom:.5rem}
+.tl-desc{font-size:.87rem;color:var(--muted);line-height:1.7}
+.tl-sub{list-style:none;margin-top:.6rem}
+.tl-sub li{font-size:.85rem;color:var(--muted);line-height:1.65;margin-bottom:.5rem;
+  padding-left:.9rem;position:relative}
+.tl-sub li::before{content:'·';position:absolute;left:0;color:var(--purple-l)}
+.tl-sub li strong{color:var(--txt);font-weight:500}
+/* ─── CONTACT ─── */
+.contact{background:var(--bg)}
+.contact-inner{max-width:700px;margin:0 auto;text-align:center}
+.contact-inner .section-label{justify-content:center}
+.contact-inner .section-label::before{display:none}
+.contact-sub{color:var(--muted);margin-top:1rem;line-height:1.7}
+.contact-links{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:2.5rem;}
+.contact-link{display:flex;align-items:center;gap:.6rem;padding:.9rem 1.6rem;border-radius:14px;
+  text-decoration:none;border:1px solid rgba(155,109,255,.2);color:var(--txt);
+  background:var(--glass);font-size:.88rem;font-weight:500;transition:.3s;}
+.contact-link:hover{border-color:rgba(155,109,255,.5);background:rgba(155,109,255,.1);
+  transform:translateY(-3px);box-shadow:0 10px 30px rgba(155,109,255,.15)}
+.contact-link svg{width:18px;height:18px;flex-shrink:0}
+.contact-glow{position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+  width:400px;height:200px;background:radial-gradient(ellipse,rgba(155,109,255,.12),transparent 70%);pointer-events:none;}
+/* ─── FOOTER ─── */
+footer{padding:2rem 5%;text-align:center;border-top:1px solid rgba(155,109,255,.1);
+  font-size:.78rem;color:var(--muted);font-family:var(--fm);position:relative;z-index:2;}
+footer .footer-name{
+  background:linear-gradient(135deg,var(--blue-l),var(--purple-l));
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;font-weight:700;font-style:normal;}
+/* ─── ANIMATIONS ─── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.reveal{opacity:0;transform:translateY(30px);transition:.6s ease}
+.reveal.visible{opacity:1;transform:none}
+/* ─── RESPONSIVE ─── */
+@media(max-width:900px){
+  .about-inner{grid-template-columns:1fr;gap:3rem}
+  .about-img-frame{max-width:260px;margin:0 auto}
+  .projects-header{flex-direction:column;align-items:flex-start}
+}
+@media(max-width:680px){
+  .nav-links{display:none;flex-direction:column;position:fixed;
+    top:60px;left:0;right:0;background:rgba(7,4,26,.95);
+    padding:2rem;gap:1.5rem;backdrop-filter:blur(16px)}
+  body.light .nav-links.open{background:rgba(245,243,255,.98)}
+  .nav-links.open{display:flex}
+  .burger{display:flex}
+  .projects-grid{grid-template-columns:1fr}
+  .about-facts{grid-template-columns:1fr 1fr}
+  section{padding:4rem 5%}
+  .hero{padding:0 6%}
+}
+</style>
 </head>
 <body>
-    <div class="container">
-        <div class="todo-column">
-            <div class="todo-app">
-                <div class="h2">Morning To-Do List <img src="Images/sun.png"></div>
-                <div class="row">
-                    <input type="text" id="morning-input-box" placeholder="Add your morning task">
-                    <button onclick="addTask('morning')">Add</button>
-                </div>
-                <ul id="morning-list-container">
-                </ul>
-            </div>
-        </div>
 
-        <div class="todo-column">
-            <div class="todo-app">
-                <div class="h2">Afternoon To-Do List <img src="Images/afternoon-tea.png"></div>
-                <div class="row">
-                    <input type="text" id="afternoon-input-box" placeholder="Add your afternoon task">
-                    <button onclick="addTask('afternoon')">Add</button>
-                </div>
-                <ul id="afternoon-list-container">
-                </ul>
-            </div>
-        </div>
+<!-- Cursor -->
+<div id="cur"></div>
+<div id="cur-r"></div>
 
-        <div class="todo-column">
-            <div class="todo-app">
-                <div class="h2">Night To-Do List <img src="Images/moon.png"></div>
-                <div class="row">
-                    <input type="text" id="night-input-box" placeholder="Add your night task">
-                    <button onclick="addTask('night')">Add</button>
-                </div>
-                <ul id="night-list-container">
-                </ul>
-            </div>
+<!-- Stars canvas -->
+<canvas id="stars"></canvas>
+
+<!-- NAV -->
+<nav id="nav">
+  <div class="nav-logo">Camila Rodríguez</div>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#about" data-es="Sobre mí" data-en="About">Sobre mí</a></li>
+    <li><a href="#skills" data-es="Skills" data-en="Skills">Skills</a></li>
+    <li><a href="#projects" data-es="Proyectos" data-en="Projects">Proyectos</a></li>
+    <li><a href="#experience" data-es="Experiencia" data-en="Experience">Experiencia</a></li>
+    <li><a href="#contact" data-es="Contacto" data-en="Contact">Contacto</a></li>
+  </ul>
+  <div class="nav-controls">
+    <button class="ctrl-btn" id="lang-btn" onclick="toggleLang()">EN</button>
+    <button class="ctrl-btn" id="theme-btn" onclick="toggleTheme()">☀</button>
+    <div class="burger" id="burger" onclick="toggleMenu()">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+    <div class="hero-badge">
+      <span class="dot"></span>
+      <span data-es="Disponible para nuevas oportunidades" data-en="Available for new opportunities">Disponible para nuevas oportunidades</span>
+    </div>
+    <h1>
+      <span class="name-line" data-es="Hola, soy" data-en="Hi, I'm">Hola, soy</span>
+      <span class="name-line grad">Camila Rodríguez</span>
+    </h1>
+    <p class="hero-sub"
+       data-es="Estudiante de Ciencias de la Computación en <strong style='color:var(--white)'>UCR</strong> · apasionada por construir experiencias digitales que importen."
+       data-en="Computer Science Student at <strong style='color:var(--white)'>UCR</strong> · passionate about building digital experiences that matter.">
+      Estudiante de Ciencias de la Computación en <strong style="color:var(--white)">UCR</strong> · apasionada por construir experiencias digitales que importen.
+    </p>
+    <p class="hero-type"><span id="typewriter"></span></p>
+    <div class="hero-ctas">
+      <a href="#projects" class="btn btn-primary">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h7l2-4 2 4h7M3 17h7l2 4 2-4h7"/></svg>
+        <span data-es="Ver proyectos" data-en="View projects">Ver proyectos</span>
+      </a>
+      <a href="https://github.com/Camirgz" target="_blank" class="btn btn-ghost">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        GitHub
+      </a>
+      <a href="https://www.linkedin.com/in/camirgz/" target="_blank" class="btn btn-ghost">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        LinkedIn
+      </a>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    scroll
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ABOUT -->
+<section class="about" id="about">
+  <div class="about-inner">
+    <div class="about-img-wrap reveal">
+      <div class="about-deco"></div>
+      <div class="about-deco2"></div>
+      <div class="about-img-frame">
+        <img src="https://avatars.githubusercontent.com/u/Camirgz"
+             onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,rgba(91,141,239,.2),rgba(155,109,255,.3))';this.parentElement.innerHTML+='<div style=\'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:5rem;z-index:2\'>✦</div>'"
+             alt="Camila Rodríguez" style="width:100%;height:100%;object-fit:cover;object-position:top"/>
+        <div class="about-corner"></div>
+        <div class="about-corner2"></div>
+      </div>
+    </div>
+    <div class="about-text reveal">
+      <div class="section-label" data-es="Sobre mí" data-en="About me">Sobre mí</div>
+      <h2 class="section-title"
+          data-es="Construyo cosas para<br/><span class='grad'>la web y más allá</span>"
+          data-en="Building things for<br/><span class='grad'>the web and beyond</span>">
+        Construyo cosas para<br/>
+        <span class="grad">la web y más allá</span>
+      </h2>
+      <p class="about-desc"
+         data-es="Soy estudiante de <strong>4to año de Ciencias de la Computación</strong> en la Universidad de Costa Rica. Trabajo como <strong>asistente de ingeniería de software</strong> en la Oficina de Comunicación Institucional (OCI) y el Centro de Evaluación Académica (CEA), donde investigo la integración de IA para generación automática de texto alternativo cumpliendo <strong>WCAG 2.2 nivel AA</strong>. También apoyo con bases de datos SQL, Jasper Reports y proyectos académicos."
+         data-en="I'm a <strong>4th year Computer Science</strong> student at the University of Costa Rica. I work as a <strong>software engineering assistant</strong> at the Office of Institutional Communication (OCI) and the Centro de Evaluación Académica (CEA), where I research AI integration for automatic alternative text generation meeting <strong>WCAG 2.2 level AA</strong>. I also assist with SQL databases, Jasper Reports, and academic projects.">
+        Soy estudiante de <strong>4to año de Ciencias de la Computación</strong> en la Universidad de Costa Rica. Trabajo como <strong>asistente de ingeniería de software</strong> en la Oficina de Comunicación Institucional (OCI) y el Centro de Evaluación Académica (CEA), donde investigo la integración de IA para generación automática de texto alternativo cumpliendo <strong>WCAG 2.2 nivel AA</strong>. También apoyo con bases de datos SQL, Jasper Reports y proyectos académicos.
+      </p>
+      <p class="about-desc" style="margin-top:.8rem"
+         data-es="También ofrezco servicios de desarrollo web <strong>freelance</strong> para PYMEs y apoyo con proyectos académicos. ¿Tienes una idea? ¡Hablemos!"
+         data-en="I also offer <strong>freelance</strong> web development services for small businesses and support academic projects. Have an idea? Let's talk!">
+        También ofrezco servicios de desarrollo web <strong>freelance</strong> para PYMEs y apoyo con proyectos académicos. ¿Tienes una idea? ¡Hablemos!
+      </p>
+      <p class="about-desc" style="margin-top:.8rem"
+         data-es="Cuando no estoy programando, me encontrarás jugando <strong>Stardew Valley</strong>, usando <strong>Notion</strong>, saliendo a cenar o haciendo <strong>telas aéreas</strong>."
+         data-en="When I'm not coding, you'll find me playing <strong>Stardew Valley</strong>, using <strong>Notion</strong>, going out for dinner, or doing <strong>aerial silks</strong>.">
+        Cuando no estoy programando, me encontrarás jugando <strong>Stardew Valley</strong>, usando <strong>Notion</strong>, saliendo a cenar o haciendo <strong>telas aéreas</strong>.
+      </p>
+      <div class="about-chips">
+        <span class="chip" data-es="Costa Rica 🇨🇷" data-en="Costa Rica 🇨🇷">Costa Rica 🇨🇷</span>
+        <span class="chip" data-es="UCR" data-en="UCR">UCR</span>
+        <span class="chip" data-es="Accesibilidad web" data-en="Web accessibility">Accesibilidad web</span>
+        <span class="chip" data-es="Freelance" data-en="Freelance">Freelance</span>
+        <span class="chip" data-es="Open source" data-en="Open source">Open source</span>
+        <span class="chip" data-es="Proyectos académicos" data-en="Academic projects">Proyectos académicos</span>
+      </div>
+      <div class="about-facts">
+        <div class="fact-card">
+          <div class="fact-num">5+</div>
+          <div class="fact-label" data-es="Proyectos académicos" data-en="Academic projects">Proyectos académicos</div>
         </div>
-    </div> 
-    <script src="script.js"> </script>
+        <div class="fact-card">
+          <div class="fact-num">4+</div>
+          <div class="fact-label" data-es="Años programando" data-en="Years coding">Años programando</div>
+        </div>
+        <div class="fact-card">
+          <div class="fact-num">8+</div>
+          <div class="fact-label" data-es="Tecnologías dominadas" data-en="Technologies mastered">Tecnologías dominadas</div>
+        </div>
+        <div class="fact-card">
+          <div class="fact-num">∞</div>
+          <div class="fact-label" data-es="Cafés por semana ☕" data-en="Coffees per week ☕">Cafés por semana ☕</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- SKILLS -->
+<section class="skills" id="skills">
+  <div class="skills-inner">
+    <div class="skills-header reveal">
+      <div class="section-label">Tech stack</div>
+      <h2 class="section-title"
+          data-es="Mis <span class='grad'>herramientas</span>"
+          data-en="My <span class='grad'>tools</span>">Mis <span class="grad">herramientas</span></h2>
+    </div>
+    <div class="skills-grid">
+      <div class="skill-cat reveal">
+        <div class="skill-cat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></svg></div>
+        <div class="skill-cat-name">Frontend</div>
+        <div class="skill-tags">
+          <span class="stag">CSS3</span>
+          <span class="stag">HTML5</span>
+          <span class="stag">JavaScript</span>
+          <span class="stag">React</span>
+          <span class="stag">Tailwind</span>
+          <span class="stag">Vite</span>
+          <span class="stag">Vue.js</span>
+        </div>
+      </div>
+      <div class="skill-cat reveal">
+        <div class="skill-cat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></div>
+        <div class="skill-cat-name">Backend</div>
+        <div class="skill-tags">
+          <span class="stag purple">ASP.NET Core</span>
+          <span class="stag purple">Dapper</span>
+          <span class="stag purple">Express</span>
+          <span class="stag purple">Hibernate</span>
+          <span class="stag purple">Node.js</span>
+          <span class="stag purple">PrimeFaces</span>
+        </div>
+      </div>
+      <div class="skill-cat reveal">
+        <div class="skill-cat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></svg></div>
+        <div class="skill-cat-name" data-es="Bases de datos" data-en="Databases">Bases de datos</div>
+        <div class="skill-tags">
+          <span class="stag">MySQL</span>
+          <span class="stag">SQL</span>
+          <span class="stag">SQL Server</span>
+        </div>
+      </div>
+      <div class="skill-cat reveal">
+        <div class="skill-cat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+        <div class="skill-cat-name" data-es="Lenguajes" data-en="Languages">Lenguajes</div>
+        <div class="skill-tags">
+          <span class="stag purple">Bash</span>
+          <span class="stag purple">C#</span>
+          <span class="stag purple">C++</span>
+          <span class="stag purple">CSS</span>
+          <span class="stag purple">HTML</span>
+          <span class="stag purple">Java</span>
+          <span class="stag purple">JavaScript</span>
+          <span class="stag purple">Python</span>
+          <span class="stag purple">Swift</span>
+        </div>
+      </div>
+      <div class="skill-cat reveal">
+        <div class="skill-cat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
+        <div class="skill-cat-name" data-es="Herramientas" data-en="Tools">Herramientas</div>
+        <div class="skill-tags">
+          <span class="stag pink">Git / GitHub</span>
+          <span class="stag pink">Jasper Reports</span>
+          <span class="stag pink">Notion</span>
+          <span class="stag pink">Selenium</span>
+          <span class="stag pink">Swagger</span>
+          <span class="stag pink">VS Code</span>
+          <span class="stag pink">Visual Studio</span>
+          <span class="stag pink">WebLogic</span>
+        </div>
+      </div>
+      <div class="skill-cat reveal">
+        <div class="skill-cat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></div>
+        <div class="skill-cat-name" data-es="Conceptos" data-en="Concepts">Conceptos</div>
+        <div class="skill-tags">
+          <span class="stag">Agile</span>
+          <span class="stag">Design Patterns</span>
+          <span class="stag">OOP</span>
+          <span class="stag">REST APIs</span>
+          <span class="stag">Scrum Master</span>
+          <span class="stag">TDD</span>
+          <span class="stag">UML</span>
+          <span class="stag">WCAG 2.2</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PROJECTS -->
+<section class="projects" id="projects">
+  <div class="projects-inner">
+    <div class="projects-header reveal">
+      <div>
+        <div class="section-label" data-es="Proyectos" data-en="Projects">Proyectos</div>
+        <h2 class="section-title"
+            data-es="Lo que he <span class='grad'>construido</span>"
+            data-en="What I've <span class='grad'>built</span>">Lo que he <span class="grad">construido</span></h2>
+      </div>
+      <div class="projects-filter">
+        <button class="filter-btn active" onclick="filterProjects('all',this)" data-es="Todos" data-en="All">Todos</button>
+        <button class="filter-btn" onclick="filterProjects('web',this)">Web</button>
+        <button class="filter-btn" onclick="filterProjects('systems',this)" data-es="Sistemas" data-en="Systems">Sistemas</button>
+        <button class="filter-btn" onclick="filterProjects('java',this)">Java</button>
+      </div>
+    </div>
+    <div class="projects-grid" id="projectsGrid">
+
+      <!-- Mushu Airlines -->
+      <div class="proj-card reveal" data-cat="web">
+        <div class="proj-top">
+          <div class="proj-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21 4 19 2c-2-2-4-2-5.5-.5L10 5 1.8 6.2a1 1 0 0 0-.8 1L2 9c0 .5.2.8.6 1L6 11l-2 3H2l-1 1 3 2 2 3 1-1v-2l3-2 1 3.4c.3.4.6.6 1 .6l1.8.2a1 1 0 0 0 1-.8z"/></svg></div>
+          <div class="proj-links">
+            <a href="https://github.com/Camirgz/MushuAirliness" target="_blank" class="proj-link" title="GitHub">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+            </a>
+          </div>
+        </div>
+        <div class="proj-title">Mushu Airlines ✦ 2 ★</div>
+        <p class="proj-desc"
+           data-es="Aplicación fullstack de reservas de vuelos. Proyecto integrador de Ingeniería de Software y Bases de Datos (I Sem. 2026) con arquitectura separada frontend/backend."
+           data-en="Full-stack flight booking application. Integrative project for Software Engineering and Databases (Sem. I 2026) with a separate frontend/backend architecture.">
+          Aplicación fullstack de reservas de vuelos. Proyecto integrador de Ingeniería de Software y Bases de Datos (I Sem. 2026) con arquitectura separada frontend/backend.
+        </p>
+        <div class="proj-tags">
+          <span class="ptag blue">Vue.js</span>
+          <span class="ptag blue">Backend</span>
+          <span class="ptag">Scrum</span>
+          <span class="ptag">Fullstack</span>
+        </div>
+        <div class="proj-meta">
+          <span class="proj-star">⭐ 2 stars</span>
+          <span class="featured-badge" data-es="Colaborativo" data-en="Collaborative">Colaborativo</span>
+        </div>
+      </div>
+
+      <!-- SQL Simulator -->
+      <div class="proj-card reveal" data-cat="systems">
+        <div class="proj-top">
+          <div class="proj-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></svg></div>
+          <div class="proj-links">
+            <a href="https://github.com/Camirgz/SQL-Simulator" target="_blank" class="proj-link" title="GitHub">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+            </a>
+          </div>
+        </div>
+        <div class="proj-title">SQL Simulator</div>
+        <p class="proj-desc"
+           data-es="Simulador SQL en C++ con soporte para SELECT, WHERE, ORDER BY y funciones de agregación. Arquitectura profesional con Makefile, tests unitarios y documentación completa."
+           data-en="SQL simulator in C++ supporting SELECT, WHERE, ORDER BY, and aggregate functions. Professional architecture with Makefile, unit tests, and complete documentation.">
+          Simulador SQL en C++ con soporte para SELECT, WHERE, ORDER BY y funciones de agregación. Arquitectura profesional con Makefile, tests unitarios y documentación completa.
+        </p>
+        <div class="proj-tags">
+          <span class="ptag blue">C++</span>
+          <span class="ptag blue">Makefile</span>
+          <span class="ptag">Unit Tests</span>
+          <span class="ptag">Parsing</span>
+        </div>
+        <div class="proj-meta">
+          <span class="proj-star">🔧 Sistemas</span>
+          <span class="featured-badge" data-es="Destacado" data-en="Featured">Destacado</span>
+        </div>
+      </div>
+
+      <!-- Planificador de Procesos -->
+      <div class="proj-card reveal" data-cat="systems">
+        <div class="proj-top">
+          <div class="proj-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+          <div class="proj-links">
+            <a href="https://github.com/Camirgz/PlanificadorDeProcesos" target="_blank" class="proj-link" title="GitHub">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+            </a>
+          </div>
+        </div>
+        <div class="proj-title"
+             data-es="Simulador de Planificador de Procesos"
+             data-en="Process Scheduler Simulator">Simulador de Planificador de Procesos</div>
+        <p class="proj-desc"
+           data-es="Simulador de planificador de procesos de SO con algoritmos Round Robin y Por Prioridad. Incluye documentación Doxygen, Makefile y scripts de compilación automatizados."
+           data-en="OS process scheduler simulator with Round Robin and Priority algorithms. Includes Doxygen documentation, Makefile, and automated build scripts.">
+          Simulador de planificador de procesos de SO con algoritmos Round Robin y Por Prioridad. Incluye documentación Doxygen, Makefile y scripts de compilación automatizados.
+        </p>
+        <div class="proj-tags">
+          <span class="ptag blue">C++</span>
+          <span class="ptag">OS</span>
+          <span class="ptag">Round Robin</span>
+          <span class="ptag">Doxygen</span>
+        </div>
+        <div class="proj-meta">
+          <span class="proj-star" data-es="🖥️ Sistemas Operativos" data-en="🖥️ Operating Systems">🖥️ Sistemas Operativos</span>
+        </div>
+      </div>
+
+      <!-- Búsqueda de Coincidencias (OIJ) -->
+      <div class="proj-card reveal" data-cat="java">
+        <div class="proj-top">
+          <div class="proj-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
+          <div class="proj-links">
+            <a href="https://github.com/Camirgz/BusquedaDeCoincidencias" target="_blank" class="proj-link" title="GitHub">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+            </a>
+          </div>
+        </div>
+        <div class="proj-title"
+             data-es="OIJ — Búsqueda de Coincidencias"
+             data-en="OIJ — Match Search System">OIJ — Búsqueda de Coincidencias</div>
+        <p class="proj-desc"
+           data-es="Sistema para el OIJ que automatiza búsqueda de personas sospechosas usando árboles e índices. Implementa estructuras de datos: Árbol, Lista, con archivos de prueba incluidos."
+           data-en="System for OIJ automating suspicious person searches using trees and indices. Implements Tree and List data structures with sample test files.">
+          Sistema para el OIJ que automatiza búsqueda de personas sospechosas usando árboles e índices. Implementa estructuras de datos: Árbol, Lista, con archivos de prueba incluidos.
+        </p>
+        <div class="proj-tags">
+          <span class="ptag blue">Java</span>
+          <span class="ptag blue" data-es="Árboles" data-en="Trees">Árboles</span>
+          <span class="ptag" data-es="Estructuras de datos" data-en="Data structures">Estructuras de datos</span>
+        </div>
+        <div class="proj-meta">
+          <span class="proj-star" data-es="⭐ Proyecto real" data-en="⭐ Real project">⭐ Proyecto real</span>
+        </div>
+      </div>
+
+      <!-- Plantastic -->
+      <div class="proj-card reveal" data-cat="web">
+        <div class="proj-top">
+          <div class="proj-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg></div>
+          <div class="proj-links">
+            <a href="https://github.com/Camirgz/CI0137-Plantastic" target="_blank" class="proj-link" title="GitHub">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+            </a>
+          </div>
+        </div>
+        <div class="proj-title">Plantastic</div>
+        <p class="proj-desc"
+           data-es="Portal e-commerce responsivo para tienda de plantas medicinales. Aplicación Vue.js con diseño visual moderno y enfoque en estructura, layout e interfaz de usuario fluida."
+           data-en="Responsive e-commerce portal for a medicinal plant store. Vue.js application with modern visual design focused on structure, layout, and smooth UI.">
+          Portal e-commerce responsivo para tienda de plantas medicinales. Aplicación Vue.js con diseño visual moderno y enfoque en estructura, layout e interfaz de usuario fluida.
+        </p>
+        <div class="proj-tags">
+          <span class="ptag blue">Vue.js</span>
+          <span class="ptag blue">Node.js</span>
+          <span class="ptag">E-commerce</span>
+          <span class="ptag">CI-0137 UCR</span>
+        </div>
+        <div class="proj-meta">
+          <span class="proj-star">🌐 Web</span>
+        </div>
+      </div>
+
+      <!-- Malecu-web -->
+      <div class="proj-card reveal" data-cat="web">
+        <div class="proj-top">
+          <div class="proj-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></svg></div>
+          <div class="proj-links">
+            <a href="https://github.com/Camirgz/Malecu-web" target="_blank" class="proj-link" title="GitHub">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+            </a>
+          </div>
+        </div>
+        <div class="proj-title">Malecu-web</div>
+        <p class="proj-desc"
+           data-es="Frasediccionario digital de la lengua indígena Malecu como aplicación web. Proyecto de preservación cultural desarrollado para el TCU-625 de la UCR con impacto social real."
+           data-en="Digital phrase-dictionary for the indigenous Malecu language as a web app. Cultural preservation project developed for TCU-625 at UCR with real social impact.">
+          Frasediccionario digital de la lengua indígena Malecu como aplicación web. Proyecto de preservación cultural desarrollado para el TCU-625 de la UCR con impacto social real.
+        </p>
+        <div class="proj-tags">
+          <span class="ptag blue">JavaScript</span>
+          <span class="ptag">TCU-625 UCR</span>
+          <span class="ptag">Cultural</span>
+        </div>
+        <div class="proj-meta">
+          <span class="proj-star" data-es="🤝 Impacto social" data-en="🤝 Social impact">🤝 Impacto social</span>
+          <span class="featured-badge">TCU</span>
+        </div>
+      </div>
+
+      <!-- Daily TODO -->
+      <div class="proj-card reveal" data-cat="web">
+        <div class="proj-top">
+          <div class="proj-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3 8-8"/></svg></div>
+          <div class="proj-links">
+            <a href="https://camirgz.github.io" target="_blank" class="proj-link" title="Live">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </a>
+            <a href="https://github.com/Camirgz/camirgz.github.io" target="_blank" class="proj-link" title="GitHub">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+            </a>
+          </div>
+        </div>
+        <div class="proj-title">Daily TODO ✦ 1 ★</div>
+        <p class="proj-desc"
+           data-es="App de gestión de tareas diarias (mañana/tarde/noche) con persistencia via localStorage. Diseño responsivo e interfaz limpia. Disponible live en GitHub Pages."
+           data-en="Daily task management app (morning/afternoon/evening) with localStorage persistence. Responsive design and clean interface. Live on GitHub Pages.">
+          App de gestión de tareas diarias (mañana/tarde/noche) con persistencia via localStorage. Diseño responsivo e interfaz limpia. Disponible live en GitHub Pages.
+        </p>
+        <div class="proj-tags">
+          <span class="ptag blue">JavaScript</span>
+          <span class="ptag blue">CSS</span>
+          <span class="ptag">localStorage</span>
+          <span class="ptag">Live</span>
+        </div>
+        <div class="proj-meta">
+          <span class="proj-star">⭐ 1 star</span>
+          <span class="featured-badge">Live ↗</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- EXPERIENCE -->
+<section class="experience" id="experience">
+  <div class="exp-inner">
+    <div class="reveal">
+      <div class="section-label" data-es="Experiencia &amp; Educación" data-en="Experience &amp; Education">Experiencia &amp; Educación</div>
+      <h2 class="section-title"
+          data-es="Mi <span class='grad'>camino</span>"
+          data-en="My <span class='grad'>journey</span>">Mi <span class="grad">camino</span></h2>
+    </div>
+    <div class="timeline">
+
+      <!-- 2025 – Present -->
+      <div class="tl-item reveal">
+        <div class="tl-dot"></div>
+        <div class="tl-date" data-es="2025 — Actualidad" data-en="2025 — Present">2025 — Actualidad</div>
+        <div class="tl-title" data-es="Asistente de Ingeniería de Software" data-en="Software Engineering Assistant">Asistente de Ingeniería de Software</div>
+        <div class="tl-place" data-es="Universidad de Costa Rica" data-en="University of Costa Rica">Universidad de Costa Rica</div>
+        <div class="tl-desc" id="tl-assistant">
+          <ul class="tl-sub">
+            <li><strong>CELEQ (Centro de Electroquímica y Química)</strong> — Mantenimiento técnico de equipos y sistemas operativos, y soporte para sitios web institucionales y dispositivos de seguridad.</li>
+            <li><strong>Estación Experimental Agrícola Fabio Baudrit</strong> — Soporte para aplicaciones iOS y Android: pruebas, solución de problemas y mantenimiento general.</li>
+            <li><strong>Oficina de Comunicación Institucional (OCI), UCR</strong> — Soporte a sitios web institucionales y trabajo con estándares de accesibilidad web y lineamientos de cumplimiento de la UCR.</li>
+            <li><strong>Centro de Evaluación Académica (CEA), UCR</strong> — Asistencia en ingeniería de software, contribución al desarrollo de bases de datos y procesos técnicos.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 2024 -->
+      <div class="tl-item reveal">
+        <div class="tl-dot"></div>
+        <div class="tl-date">2024</div>
+        <div class="tl-title" data-es="Proyecto TCU · Preservación Cultural Malecu" data-en="TCU Project · Malecu Cultural Preservation">Proyecto TCU · Preservación Cultural Malecu</div>
+        <div class="tl-place" data-es="TCU-625 · Universidad de Costa Rica" data-en="TCU-625 · University of Costa Rica">TCU-625 · Universidad de Costa Rica</div>
+        <div class="tl-desc"
+             data-es="Desarrollo de aplicación web React/Vite/Tailwind para frasediccionario digital del idioma indígena Malecu. Implementé navegación, barra de menú y routing de la aplicación."
+             data-en="Developed a React/Vite/Tailwind web application for a digital phrase-dictionary of the indigenous Malecu language. Implemented navigation, menu bar, and app routing.">
+          Desarrollo de aplicación web React/Vite/Tailwind para frasediccionario digital del idioma indígena Malecu. Implementé navegación, barra de menú y routing de la aplicación.
+        </div>
+      </div>
+
+      <!-- 2023 – Present -->
+      <div class="tl-item reveal">
+        <div class="tl-dot"></div>
+        <div class="tl-date" data-es="2023 — Actualidad" data-en="2023 — Present">2023 — Actualidad</div>
+        <div class="tl-title" data-es="Bachillerato en Ciencias de la Computación" data-en="Bachelor's in Computer Science">Bachillerato en Ciencias de la Computación</div>
+        <div class="tl-place" data-es="Universidad de Costa Rica" data-en="University of Costa Rica">Universidad de Costa Rica</div>
+        <div class="tl-desc"
+             data-es="4to año. Cursos destacados: Sistemas Operativos, Redes, Bases de Datos, Ingeniería de Software, Calidad de Software, Análisis de Algoritmos, Diseño de Software, Programación Paralela, Aplicaciones Web."
+             data-en="4th year. Highlighted courses: Operating Systems, Networks, Databases, Software Engineering, Software Quality, Algorithm Analysis, Software Design, Parallel Programming, Web Applications.">
+          4to año. Cursos destacados: Sistemas Operativos, Redes, Bases de Datos, Ingeniería de Software, Calidad de Software, Análisis de Algoritmos, Diseño de Software, Programación Paralela, Aplicaciones Web.
+        </div>
+      </div>
+
+      <!-- 2022 Zalando -->
+      <div class="tl-item reveal">
+        <div class="tl-dot"></div>
+        <div class="tl-date" data-es="2022 · 1 mes" data-en="2022 · 1 month">2022 · 1 mes</div>
+        <div class="tl-title" data-es="Pasantía Voluntaria" data-en="Voluntary Internship">Pasantía Voluntaria</div>
+        <div class="tl-place" data-es="Zalando · Departamento de Business Excellence" data-en="Zalando · Business Excellence Department">Zalando · Departamento de Business Excellence</div>
+        <div class="tl-desc"
+             data-es="Pasantía voluntaria donde adquirí experiencia práctica en ingeniería de software. Trabajé con sistemas Linux/Ubuntu, instalación de sistemas de virtualización local y configuración de entornos de desarrollo. Participé en prácticas introductorias de TDD y contribuí a procesos de build e integración de sistemas. Colaboré con el equipo de ingeniería y apoyé el desarrollo y uso de herramientas internas para flujos técnicos."
+             data-en="Completed a voluntary internship in the Business Excellence department, gaining practical experience in software engineering and development environments. Worked with Linux/Ubuntu systems, including installation of local virtualization systems and configuration of software development environments. Participated in introductory practices of Test-Driven Development (TDD) and contributed to build systems and system integration processes. Collaborated with the engineering team and supported the development and use of internal tools to assist technical workflows within the company.">
+          Pasantía voluntaria donde adquirí experiencia práctica en ingeniería de software. Trabajé con sistemas Linux/Ubuntu, instalación de sistemas de virtualización local y configuración de entornos de desarrollo. Participé en prácticas introductorias de TDD y contribuí a procesos de build e integración de sistemas. Colaboré con el equipo de ingeniería y apoyé el desarrollo y uso de herramientas internas para flujos técnicos.
+        </div>
+      </div>
+
+      <!-- 2022 Instructora -->
+      <div class="tl-item reveal">
+        <div class="tl-dot"></div>
+        <div class="tl-date">2022</div>
+        <div class="tl-title" data-es="Instructora de Programación" data-en="Programming Instructor">Instructora de Programación</div>
+        <div class="tl-place" data-es="Curso extraescolar · Estudiantes 12–17 años" data-en="Extracurricular course · Students 12–17 years">Curso extraescolar · Estudiantes 12–17 años</div>
+        <div class="tl-desc"
+             data-es="Diseño e impartición de curso de programación en Python para estudiantes jóvenes. Material disponible en el repositorio Programming_Classes."
+             data-en="Designed and taught a Python programming course for young students. Course materials available in the Programming_Classes repository.">
+          Diseño e impartición de curso de programación en Python para estudiantes jóvenes. Material disponible en el repositorio Programming_Classes.
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- CONTACT -->
+<section class="contact" id="contact">
+  <div class="contact-inner">
+    <div class="section-label" data-es="Contacto" data-en="Contact">Contacto</div>
+    <h2 class="section-title"
+        data-es="¿Hablamos?<br/><span class='grad'>Estoy disponible</span>"
+        data-en="Let's talk!<br/><span class='grad'>I'm available</span>">
+      ¿Hablamos?<br/><span class="grad">Estoy disponible</span>
+    </h2>
+    <p class="contact-sub"
+       data-es="Abierta a oportunidades de trabajo, colaboraciones en proyectos interesantes o simplemente a conectar con otras personas en tech. ¡No dudes en escribirme! 💌"
+       data-en="Open to job opportunities, collaboration on interesting projects, or just connecting with others in tech. Don't hesitate to reach out! 💌">
+      Abierta a oportunidades de trabajo, colaboraciones en proyectos interesantes o simplemente a conectar con otras personas en tech. ¡No dudes en escribirme! 💌
+    </p>
+    <div class="contact-links">
+      <a href="https://github.com/Camirgz" target="_blank" class="contact-link">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        GitHub
+      </a>
+      <a href="https://www.linkedin.com/in/camirgz/" target="_blank" class="contact-link">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        LinkedIn
+      </a>
+      <a href="mailto:camirgza@gmail.com" class="contact-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Email
+      </a>
+    </div>
+    <div class="contact-glow"></div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <b class="footer-name">Camila Rodríguez</b> · <span data-es="Hecha con ♡ desde Costa Rica 🇨🇷 · 2026" data-en="Made with ♡ from Costa Rica 🇨🇷 · 2026">Hecha con ♡ desde Costa Rica 🇨🇷 · 2026</span>
+</footer>
+
+<script>
+// ── Custom cursor ──
+const cur = document.getElementById('cur');
+const curR = document.getElementById('cur-r');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;
+  cur.style.left=mx+'px';cur.style.top=my+'px'});
+(function animRing(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;
+  curR.style.left=rx+'px';curR.style.top=ry+'px';requestAnimationFrame(animRing)})();
+document.querySelectorAll('a,button,.filter-btn').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cur.style.width='20px';cur.style.height='20px';cur.style.background='var(--blue-l)'});
+  el.addEventListener('mouseleave',()=>{cur.style.width='10px';cur.style.height='10px';cur.style.background='var(--purple-l)'});
+});
+
+// ── Star canvas ──
+(function(){
+  const c=document.getElementById('stars');
+  const ctx=c.getContext('2d');
+  let W,H,stars=[];
+  function resize(){W=c.width=innerWidth;H=c.height=innerHeight;init()}
+  function init(){stars=[];
+    for(let i=0;i<140;i++)stars.push({
+      x:Math.random()*W,y:Math.random()*H,
+      r:Math.random()*.9+.2,o:Math.random()*.6+.1,
+      s:Math.random()*.3-.15,d:Math.random()*Math.PI*2
+    })
+  }
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    const isLight=document.body.classList.contains('light');
+    stars.forEach(s=>{
+      s.d+=.003;s.o=.1+.5*(Math.sin(s.d)+1)/2;
+      ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle=isLight?`rgba(100,60,200,${s.o*.35})`:`rgba(196,160,255,${s.o})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize',resize);
+  resize();draw();
+})();
+
+// ── Language ──
+let currentLang='es';
+const assistantHTML={
+  es:`<ul class="tl-sub"><li><strong>CELEQ (Centro de Electroquímica y Química)</strong> — Mantenimiento técnico de equipos y sistemas operativos, y soporte para sitios web institucionales y dispositivos de seguridad.</li><li><strong>Estación Experimental Agrícola Fabio Baudrit</strong> — Soporte para aplicaciones iOS y Android: pruebas, solución de problemas y mantenimiento general.</li><li><strong>Oficina de Comunicación Institucional (OCI), UCR</strong> — Soporte a sitios web institucionales y trabajo con estándares de accesibilidad web y lineamientos de cumplimiento de la UCR.</li><li><strong>Centro de Evaluación Académica (CEA), UCR</strong> — Asistencia en ingeniería de software, contribución al desarrollo de bases de datos y procesos técnicos.</li></ul>`,
+  en:`<ul class="tl-sub"><li><strong>CELEQ (Centro de Electroquímica y Química)</strong> — Provided technical maintenance for computers and operating systems, and assisted with support for institutional websites and security devices.</li><li><strong>Estación Experimental Agrícola Fabio Baudrit</strong> — Provided support for iOS and Android applications, assisting with testing, troubleshooting, and general maintenance.</li><li><strong>Office of Institutional Communication (OCI), UCR</strong> — Supported institutional websites and worked with web accessibility standards and compliance guidelines established by the University of Costa Rica.</li><li><strong>Centro de Evaluación Académica (CEA), UCR</strong> — Assisted with software engineering tasks, contributing to database development support and technical processes.</li></ul>`
+};
+
+function applyLang(lang){
+  document.querySelectorAll('[data-es]').forEach(el=>{
+    el.innerHTML=lang==='es'?el.dataset.es:el.dataset.en;
+  });
+  document.getElementById('tl-assistant').innerHTML=assistantHTML[lang];
+  document.documentElement.lang=lang;
+  document.getElementById('lang-btn').textContent=lang==='es'?'EN':'ES';
+}
+function toggleLang(){
+  currentLang=currentLang==='es'?'en':'es';
+  applyLang(currentLang);
+  twReset();
+}
+
+// ── Theme ──
+let currentTheme='dark';
+function toggleTheme(){
+  currentTheme=currentTheme==='dark'?'light':'dark';
+  document.body.classList.toggle('light',currentTheme==='light');
+  document.getElementById('theme-btn').textContent=currentTheme==='dark'?'☀':'☾';
+  localStorage.setItem('theme',currentTheme);
+}
+const savedTheme=localStorage.getItem('theme');
+if(savedTheme==='light'){currentTheme='light';document.body.classList.add('light');document.getElementById('theme-btn').textContent='☾';}
+
+// ── Typewriter ──
+const phrases={
+  es:['Desarrolladora Full-Stack','Accesibilidad Web · WCAG 2.2','Estudiante en la UCR','Proyectos freelance y académicos'],
+  en:['Full-Stack Developer','Web Accessibility · WCAG 2.2','Student at UCR','Freelance & Academic Projects']
+};
+let pi=0,ci=0,deleting=false,twTimer=null;
+const tw=document.getElementById('typewriter');
+function type(){
+  const p=phrases[currentLang][pi];
+  if(!deleting){
+    tw.textContent=p.slice(0,++ci);
+    if(ci===p.length){deleting=true;twTimer=setTimeout(type,2000);return}
+  } else {
+    tw.textContent=p.slice(0,--ci);
+    if(ci===0){deleting=false;pi=(pi+1)%phrases[currentLang].length}
+  }
+  twTimer=setTimeout(type,deleting?50:90);
+}
+function twReset(){clearTimeout(twTimer);pi=0;ci=0;deleting=false;tw.textContent='';twTimer=setTimeout(type,300);}
+twTimer=setTimeout(type,1400);
+
+// ── Scroll reveal ──
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}});
+},{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+// ── Nav shrink ──
+window.addEventListener('scroll',()=>{
+  document.getElementById('nav').style.padding=scrollY>60?'.8rem 5%':'1.2rem 5%';
+});
+
+// ── Project filter ──
+function filterProjects(cat,btn){
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.proj-card').forEach(c=>{
+    const show=cat==='all'||c.dataset.cat===cat;
+    c.style.display=show?'flex':'none';
+  });
+}
+
+// ── Mobile menu ──
+function toggleMenu(){document.getElementById('navLinks').classList.toggle('open');}
+document.querySelectorAll('.nav-links a').forEach(a=>a.addEventListener('click',()=>{
+  document.getElementById('navLinks').classList.remove('open');
+}));
+</script>
 </body>
 </html>
